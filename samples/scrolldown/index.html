@@ -1,28 +1,74 @@
-<html>
-    <header>
-        <script src="../../src/canvCurses.js"> </script>
-        <script src="cur.js"> </script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-        <script src="https://github.com/kswedberg/jquery-smooth-scroll/blob/master/jquery.smooth-scroll.min.js"></script>
-        <script>
-            $('.smooth').on('click', function() {
-                $.smoothScroll({
-                    scrollElement: $('body'),
-                    scrollTarget: '#' + this.id
-                });
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<meta charset="UTF-8">
+	
+<link rel="stylesheet" type="text/css" href="style.css">
+<link href="data:text/css,%2F*%20latin%20*%2F%0A%40font-face%20%7B%0A%20%20font-family%3A%20'Annie%20Use%20Your%20Telescope'%3B%0A%20%20font-style%3A%20normal%3B%0A%20%20font-weight%3A%20400%3B%0A%20%20src%3A%20local('Annie%20Use%20Your%20Telescope%20Regular')%2C%20local('AnnieUseYourTelescope-Regular')%2C%20url(https%3A%2F%2Ffonts.gstatic.com%2Fs%2Fannieuseyourtelescope%2Fv8%2FdaaLSS4tI2qYYl3Jq9s_Hu74xwktnlKxH6osGVGTkz3A.woff2)%20format('woff2')%3B%0A%20%20unicode-range%3A%20U%2B0000-00FF%2C%20U%2B0131%2C%20U%2B0152-0153%2C%20U%2B02BB-02BC%2C%20U%2B02C6%2C%20U%2B02DA%2C%20U%2B02DC%2C%20U%2B2000-206F%2C%20U%2B2074%2C%20U%2B20AC%2C%20U%2B2122%2C%20U%2B2191%2C%20U%2B2193%2C%20U%2B2212%2C%20U%2B2215%2C%20U%2BFEFF%2C%20U%2BFFFD%3B%0A%7D%0A" rel="stylesheet" type="text/css" data-original-href="http://fonts.googleapis.com/css?family=Annie+Use+Your+Telescope" data-relative-to="http://fonts.googleapis.com/css?family=Annie+Use+Your+Telescope">
 
-                return false;
-            });
-        </script>
-        <link rel="stylesheet" href="style.css">
-    </header>
+<style id="dark-background-light-text-add-on-inline-style-override"></style></head>
+<body>
+	
 
-    <body>
-        <p>AHH</p>
-        <div id="page-wrap">
-            <canvas id="canv1" width=1000 height=960 > </canvas>
-            <canvas id="canv2" width=1000 height=960 > </canvas>
-            <canvas id="canv3" width=1000 height=960 > </canvas>
-        </div>
-    </body>
-</html>
+
+<div id="header">
+	<div id="nav">
+		<a href="#about">About</a>
+		<a href="#portfolio">Portfolio</a>
+		<a href="#contact">Contact</a> 
+	</div>
+</div>
+
+<div id="page-wrap">
+
+	<div id="page1">
+		<a name="about"></a>
+		<div class="page-padding"></div>
+		<p>This is what you see on the About page.</p>
+    <canvas id="canv1" width=1000 height=960></canvas>
+	</div> <!--END page1-->
+	
+	<div id="page2">
+		<a name="portfolio"></a>
+		<div class="page-padding"></div>
+		<p>This is what you would see on the Portfolio page.</p>
+    <canvas id="canv2" width=1000 height=960></canvas>
+	</div> <!--END page2-->
+
+	<div id="page3">
+		<a name="contact"></a> 
+		<div class="page-padding"></div>
+		<p>This is what you see on the Contact page.</p>
+    <canvas id="canv3" width=1000 height=960></canvas>
+	</div> <!--END page3-->
+	
+</div> <!--END page-wrap-->
+
+<script src="jquery.js"></script>
+<script>$(document).ready(function() {
+  function filterPath(string) {
+    return string
+      .replace(/^\//,'')  
+      .replace(/(index|default).[a-zA-Z]{3,4}$/,'')  
+      .replace(/\/$/,'');
+  }
+  $('a[href*=#]').each(function() {
+    if ( filterPath(location.pathname) == filterPath(this.pathname)
+    && location.hostname == this.hostname
+    && this.hash.replace(/#/,'') ) {
+      var $targetId = $(this.hash), $targetAnchor = $('[name=' + this.hash.slice(1) +']');
+      var $target = $targetId.length ? $targetId : $targetAnchor.length ? $targetAnchor : false;
+       if ($target) {
+         var targetOffset = $target.offset().top;
+         $(this).click(function() {
+           $('html, body').animate({scrollTop: targetOffset}, 2000);
+           return false;
+         });
+      }
+    }
+  });
+});</script>
+<script src="../../src/canvCurses.js"></script>
+<script src="cur.js"> </script>
+
+</body></html>

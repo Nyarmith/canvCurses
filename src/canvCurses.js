@@ -504,3 +504,9 @@ function Subwindow(parent_win, x, y, width, height)
     return self;
 }
 
+function Cursify(elementId, cols, rows){
+  var e = document.getElementById(elementId);
+  e.width  = cols*8;
+  e.height = rows*12;
+  return RootWindow(e,cols,rows,"Courier", 10);
+}
