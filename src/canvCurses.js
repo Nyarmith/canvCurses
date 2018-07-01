@@ -151,8 +151,10 @@ var RootWindowFuncs = {
      'nextline': (function() {
         this.x = 0;
         this.y++;
-        if (this.y >= this.height)
+        if (this.y >= this.height){
             this.y = 0;
+            this.nextPage=true;
+        }
      }),
 
     /**
@@ -161,6 +163,11 @@ var RootWindowFuncs = {
      * nextline() function.
      */
     'addch': (function(char) {
+        if (char == '\n'){
+            this.nextline();
+          return 0;
+        }
+
         this.set_ch(char, this.x, this.y);
 
         this.x++;
@@ -197,12 +204,12 @@ var RootWindowFuncs = {
      * Gets the character at the given location, or if the coordinate is
      * invalid, this returns the empty string instead.
      */
-    'getch': (function(cx, cy) {
-        if (!this.in_window())
+    'getch': (function(cy, cx) {
+        if (!this.in_window(cx,cy))
             return '';
 
         var index = this.index(cx, cy);
-        return this.char_memory[index];
+        return [this.char_memory[index], this.color_memory[index].foreground, this.color_memory[index].background];
     }),
 
     /**
@@ -221,6 +228,8 @@ var RootWindowFuncs = {
         this.char_memory[index] = char;
         this.color_memory[index].foreground = fg_color;
         this.color_memory[index].background = bg_color;
+        this.changes.push(cy);
+        this.changes.push(cx);
     }),
 
     /**
@@ -278,10 +287,44 @@ var RootWindowFuncs = {
      * colors. Note that this does not cause the screen to be redrawn, however.
      */
     'clear': (function() {
-        for (var row = 0; row < this.height; row++) {
-            for (var col = 0; col < this.width; col++)
-                RootWindowFuncs.clear_cell.apply(this, [col, row]);
+        for (let i=0; i<this.char_memory.length; ++i){
+            this.char_memory[i] = ' ';
+            this.color_memory[i].foreground = this.current_foreground;
+            this.color_memory[i].background = this.current_background;
         }
+        this.changes = [];
+        this.nextPage = false;
+        this.get_context().fillStyle = this.current_background;
+        this.get_context().fillRect(0,0,this.width*8, this.height*12);
+    }),
+    //hack clear
+    'cls': (function() {
+        this.get_context().fillStyle = this.current_background;
+        this.get_context().fillRect(0,0,this.width*8, this.height*12);
+    }),
+
+    //hack clear
+    'empty': (function() {
+        for (let i=0; i<this.char_memory.length; ++i){
+            this.char_memory[i] = ' ';
+            this.color_memory[i].foreground = this.current_foreground;
+            this.color_memory[i].background = this.current_background;
+        }
+        this.changes = [];
+    }),
+
+    /**
+     * saves the context
+     */
+    'save': (function() {
+        this.get_context().save();
+    }),
+
+    /**
+     * restores the context
+     */
+    'restore': (function() {
+        this.get_context().restore();
     }),
 
     /**
@@ -317,14 +360,10 @@ var RootWindowFuncs = {
         var context = this.get_context();
         context.font = this.font_size + 'px ' + this.font;
 
-        // Note that we go from the bottom to the top, since there are characters
-        // like the comma which will stick below the cell, and get chopped off by
-        // the bottom cell. Going from the bottom, we don't chop off those
-        // bottom pieces, since they get drawn over the bottom cell, which has already
-        // been rendered.
-        for (var row = this.height - 1; row >= 0; row--) {
-            for (var col = 0; col < this.width; col++)
-                RootWindowFuncs.refresh_cell.apply(this, [context, col, row]);
+        for (let i=0; i<this.changes.length; i += 2){
+            y=this.changes[i];
+            x=this.changes[i+1];
+            RootWindowFuncs.refresh_cell.apply(this, [context, x, y]);
         }
     }),
 };
@@ -336,6 +375,9 @@ function RootWindow(canvas, width, height, font, font_size) {
     self.height = height;
     self.x = 0;
     self.y = 0;
+    self.nextPage=false;
+    self.changes=[];
+    self.cleared=false;
 
     self.aspect_x = canvas.width / width;
     self.aspect_y = canvas.height / height;
@@ -403,6 +445,11 @@ var SubwindowFuncs = {
     }),
 
     'addch': (function(char) {
+        if (char == '\n'){
+            this.nextline();
+          return 0;
+        }
+
         this.set_ch(char, this.x, this.y);
 
         this.x++;
@@ -415,7 +462,7 @@ var SubwindowFuncs = {
             this.addch(str[i]);
     }),
 
-    'getch': (function(cx, cy) {
+    'getch': (function(cy, cx) {
         if (!this.in_window(cx, cy))
             return '';
 

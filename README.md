@@ -9,8 +9,8 @@ Pros:
 Cons:
 * Curses your canvas (for life?)
 
-
-#### QuickStart
+<br />
+#### %#QuickStart#%
 
 Initialization:
 ```
@@ -40,7 +40,6 @@ cob.setfg("rgb(10,10,200)") //any javascript valid color will work here
 cob.setbg("orange"); //any javascript valid color will work here
 cob.mvaddstr(3,1,"What is easy, is often not what is right.");
 cob.refresh(); //actually draws the above
-
 ```
 
 Tips:
